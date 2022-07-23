@@ -1,7 +1,7 @@
 package file
 
 import (
-	d "github.com/katin-dev/gallery/domain/file"
+	d "github.com/katin-dev/gallery/app/domain/file"
 )
 
 type FileRestService struct {

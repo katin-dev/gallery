@@ -1,6 +1,6 @@
 package file
 
-import "github.com/katin-dev/gallery/domain/file"
+import "github.com/katin-dev/gallery/app/domain/file"
 
 type FileDto struct {
 	Id   uint   `json:"id"`

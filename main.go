@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	httpfile "github.com/katin-dev/gallery/http/file"
+	httpfile "github.com/katin-dev/gallery/app/http/file"
 )
 
 func main() {

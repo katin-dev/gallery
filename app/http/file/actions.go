@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	infra_file "github.com/katin-dev/gallery/infra/file"
+	infra_file "github.com/katin-dev/gallery/app/infra/file"
 )
 
 func ListFiles(c *gin.Context) {

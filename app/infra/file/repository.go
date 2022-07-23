@@ -1,6 +1,6 @@
 package file
 
-import d "github.com/katin-dev/gallery/domain/file"
+import d "github.com/katin-dev/gallery/app/domain/file"
 
 type FileRepository struct {
 }
