@@ -1,6 +1,8 @@
 package file
 
 import (
+	"io"
+
 	d "github.com/katin-dev/gallery/app/domain/file"
 )
 
@@ -11,6 +13,17 @@ type FileRestService struct {
 type FileList struct {
 	files []FileDto
 	total int
+}
+
+func (s *FileRestService) UploadFile(f io.Reader, name string) FileDto {
+	// я куда-то загрузил контент...
+	file := d.File{
+		Name: name,
+	}
+
+	s.repo.Create(&file)
+
+	return NewFileDto(file)
 }
 
 func (s *FileRestService) getList() FileList {
