@@ -9,7 +9,7 @@ type FileDto struct {
 
 func NewFileDto(f file.File) FileDto {
 	dto := FileDto{
-		uint(f.Id), f.Name,
+		f.ID, f.Name,
 	}
 
 	return dto

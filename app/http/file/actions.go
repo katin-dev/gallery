@@ -5,25 +5,36 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	infra_file "github.com/katin-dev/gallery/app/infra/file"
 )
 
-var service = NewFileRestService()
+type FilesHttpController struct {
+	service *FileRestService
+}
 
-func ListFiles(c *gin.Context) {
-	list := service.getList()
+func NewFilesHttpController(fileRestService *FileRestService) *FilesHttpController {
+	return &FilesHttpController{fileRestService}
+}
 
-	c.JSON(http.StatusOK, gin.H{
+func (c *FilesHttpController) List(ginCtx *gin.Context) {
+	list, err := c.service.getList()
+	if err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ginCtx.JSON(http.StatusOK, gin.H{
 		"rows":  list.files,
 		"total": list.total,
 	})
 }
 
-func UploadFile(c *gin.Context) {
-	file, err := c.FormFile("file")
+func (c *FilesHttpController) Upload(ginCtx *gin.Context) {
+	file, err := ginCtx.FormFile("file")
 	if err != nil {
 		log.Printf("Failed to upload file: %s\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
+		ginCtx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
@@ -32,19 +43,13 @@ func UploadFile(c *gin.Context) {
 	osFile, err := file.Open()
 	if err != nil {
 		log.Printf("Failed to upload file: %s\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
+		ginCtx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	fileDto := service.UploadFile(osFile, file.Filename)
+	fileDto := c.service.UploadFile(osFile, file.Filename)
 
-	c.JSON(http.StatusOK, fileDto)
-}
-
-func NewFileRestService() *FileRestService {
-	return &FileRestService{
-		infra_file.NewFileRepository(),
-	}
+	ginCtx.JSON(http.StatusOK, fileDto)
 }

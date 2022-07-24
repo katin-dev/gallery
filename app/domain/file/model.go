@@ -1,6 +1,10 @@
 package file
 
+import (
+	"gorm.io/gorm"
+)
+
 type File struct {
-	Id   int
-	Name string
+	gorm.Model
+	Name string `pg:"name"`
 }

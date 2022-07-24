@@ -6,22 +6,12 @@ import (
 	"os"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	httpfile "github.com/katin-dev/gallery/app/http/file"
+	"github.com/katin-dev/gallery/app"
+	"github.com/katin-dev/gallery/app/infra/file"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
-
-type Conf struct {
-	Db ConfDb
-}
-
-type ConfDb struct {
-	User     string `env:"DB_USER"`
-	Password string `env:"DB_PASSWORD"`
-	Name     string `env:"DB_NAME"`
-	Host     string `env:"DB_HOST"`
-	Port     string `env:"DB_PORT"`
-}
 
 func main() {
 	err := godotenv.Load()
@@ -29,18 +19,21 @@ func main() {
 		log.Println(".env file not found")
 	}
 
-	cfg := Conf{}
+	cfg := app.Conf{}
 	if err := env.Parse(&cfg); err != nil {
 		fmt.Printf("Failed to read config: %+v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(cfg)
+	dbc := cfg.Db
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Moscow", dbc.Host, dbc.User, dbc.Password, dbc.Name, dbc.Port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-	r := gin.Default()
+	fileRepo := file.NewPostgresFileRepository(db)
 
-	r.POST("/api/v1/files", httpfile.UploadFile)
-	r.GET("/api/v1/files", httpfile.ListFiles)
-
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	app := app.NewApp(cfg, fileRepo)
+	app.Run()
 }

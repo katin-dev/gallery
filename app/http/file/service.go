@@ -15,6 +15,10 @@ type FileList struct {
 	total int
 }
 
+func NewFileRestService(fileRepository d.FileRepository) *FileRestService {
+	return &FileRestService{fileRepository}
+}
+
 func (s *FileRestService) UploadFile(f io.Reader, name string) FileDto {
 	// я куда-то загрузил контент...
 	file := d.File{
@@ -26,13 +30,16 @@ func (s *FileRestService) UploadFile(f io.Reader, name string) FileDto {
 	return NewFileDto(file)
 }
 
-func (s *FileRestService) getList() FileList {
-	files := s.repo.FindBy()
+func (s *FileRestService) getList() (*FileList, error) {
+	files, err := s.repo.FindBy()
+	if err != nil {
+		return nil, err
+	}
 
 	dtos := make([]FileDto, len(files))
 	for i, file := range files {
 		dtos[i] = NewFileDto(file)
 	}
 
-	return FileList{dtos, 10}
+	return &FileList{dtos, 10}, nil
 }

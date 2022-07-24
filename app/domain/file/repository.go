@@ -1,6 +1,6 @@
 package file
 
 type FileRepository interface {
-	Create(*File)
-	FindBy() []File
+	Create(*File) error
+	FindBy() ([]File, error)
 }
