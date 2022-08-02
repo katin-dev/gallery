@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	d "github.com/katin-dev/gallery/app/domain/file"
 	"github.com/katin-dev/gallery/app/http/file"
@@ -22,12 +23,14 @@ type ConfDb struct {
 type App struct {
 	Conf     Conf
 	FileRepo d.FileRepository
+	s3client *s3.Client
 }
 
-func NewApp(c Conf, fileRepository d.FileRepository) *App {
+func NewApp(c Conf, fileRepository d.FileRepository, s3client *s3.Client) *App {
 	return &App{
 		Conf:     c,
 		FileRepo: fileRepository,
+		s3client: s3client,
 	}
 }
 
@@ -35,7 +38,7 @@ func (a *App) Run() {
 	r := gin.Default()
 
 	controllerFile := file.NewFilesHttpController(
-		file.NewFileRestService(a.FileRepo),
+		file.NewFileRestService(a.FileRepo, a.s3client),
 	)
 
 	r.POST("/api/v1/files", controllerFile.Upload)

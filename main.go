@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/katin-dev/gallery/app"
@@ -29,11 +32,20 @@ func main() {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Moscow", dbc.Host, dbc.User, dbc.Password, dbc.Name, dbc.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		fmt.Printf("Database connection failed: %+v\n", err)
+		os.Exit(1)
 	}
 
 	fileRepo := file.NewPostgresFileRepository(db)
 
-	app := app.NewApp(cfg, fileRepo)
+	s3config, err := config.LoadDefaultConfig(context.Background())
+	if err != nil {
+		fmt.Printf("AWS S3 configuration failes: %+v\n", err)
+		os.Exit(1)
+	}
+
+	s3client := s3.NewFromConfig(s3config)
+
+	app := app.NewApp(cfg, fileRepo, s3client)
 	app.Run()
 }

@@ -49,7 +49,14 @@ func (c *FilesHttpController) Upload(ginCtx *gin.Context) {
 		return
 	}
 
-	fileDto := c.service.UploadFile(osFile, file.Filename)
+	fileDto, err := c.service.UploadFile(osFile, file.Filename)
+	if err != nil {
+		log.Printf("Failed to upload file: %s\n", err)
+		ginCtx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	ginCtx.JSON(http.StatusOK, fileDto)
 }

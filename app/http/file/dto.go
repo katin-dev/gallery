@@ -7,10 +7,10 @@ type FileDto struct {
 	Name string `json:"name"`
 }
 
-func NewFileDto(f file.File) FileDto {
+func NewFileDto(f file.File) *FileDto {
 	dto := FileDto{
 		f.ID, f.Name,
 	}
 
-	return dto
+	return &dto
 }
