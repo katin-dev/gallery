@@ -23,3 +23,7 @@ func (r *InMemoryFileRepository) Create(f *d.File) {
 func (r *InMemoryFileRepository) FindBy() []d.File {
 	return r.files
 }
+
+func (r *InMemoryFileRepository) CountBy() (int64, error) {
+	return int64(len(r.files)), nil
+}

@@ -33,3 +33,14 @@ func (r *PostgresFileRepository) FindBy() ([]d.File, error) {
 
 	return files, nil
 }
+
+func (r *PostgresFileRepository) CountBy() (int64, error) {
+	var file d.File
+	var total int64
+	res := r.db.Model(&file).Count(&total)
+	if res.Error != nil {
+		return 0, fmt.Errorf("Failed to count files: %e", res.Error)
+	}
+
+	return total, nil
+}

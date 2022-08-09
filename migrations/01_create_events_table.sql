@@ -3,7 +3,8 @@ CREATE TABLE files (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NULL
+    updated_at TIMESTAMP NULL,
+    deleted_at TIMESTAMP NULL
 );
 
 --- INSERT INTO events (id, title, date, duration, user_id, notify_before, notify_at) VALUES 
