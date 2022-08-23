@@ -50,6 +50,7 @@ func (c *FilesHttpController) Upload(ginCtx *gin.Context) {
 		return
 	}
 
+	// temp dir should be configurable
 	tmpFile, err := os.CreateTemp("/tmp", "gal_")
 	if err != nil {
 		log.Printf("Failed to upload file: %s\n", err)
@@ -58,6 +59,7 @@ func (c *FilesHttpController) Upload(ginCtx *gin.Context) {
 		})
 		return
 	}
+	defer os.Remove(tmpFile.Name())
 
 	_, err = io.Copy(tmpFile, uploadedFile)
 	if err != nil {

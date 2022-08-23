@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/gin-gonic/gin"
 	d "github.com/katin-dev/gallery/app/domain/file"
+	"github.com/katin-dev/gallery/app/http/auth"
 	"github.com/katin-dev/gallery/app/http/file"
 	"github.com/minio/minio-go/v7"
 )
@@ -11,6 +12,7 @@ type Conf struct {
 	Db   ConfDb
 	S3   S3Conf
 	Port string `env:"APP_LISTEN_PORT" envDefault:"8080"`
+	Auth AuthConf
 }
 
 type ConfDb struct {
@@ -27,6 +29,10 @@ type S3Conf struct {
 	Secret   string `env:"AWS_API_SECRET"`
 	UseSSL   bool   `env:"AWS_SSL"`
 	Bucket   string `env:"AWS_BUCKET"`
+}
+
+type AuthConf struct {
+	Host string `env:"AUTH_HOST"`
 }
 
 type App struct {
@@ -50,8 +56,12 @@ func (a *App) Run() {
 		file.NewFileRestService(a.FileRepo, a.s3client, a.Conf.S3.Bucket),
 	)
 
-	r.POST("/api/v1/files", controllerFile.Upload)
-	r.GET("/api/v1/files", controllerFile.List)
+	auth := auth.NewRtbAuth(a.Conf.Auth.Host)
+	r.Use(auth.Auth)
+
+	private := r.Group("/api/v1", auth.Auth)
+	private.POST("/files", controllerFile.Upload)
+	private.GET("/files", controllerFile.List)
 
 	r.Run(":" + a.Conf.Port)
 }
